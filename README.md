@@ -40,7 +40,9 @@
   ```
 
 ### Adapter.kt 추가하는 대신 RecyclerViewAdapter.Builder 사용
+
 - `MockAdatper.kt` → `RecyclerViewAdapter.Builder().build()`
+
   ```kotlin
   val adapter = RecyclerViewAdapter.Builder()
       .addHolder(holder = MockHolder::class)
@@ -50,7 +52,9 @@
   ```
 
 ### 같은 방식으로 Infinite loop 적용
+
 - `RecyclerViewAdapter` → `InfiniteRecyclerAdapter`
+
   ```kotlin
   val adapter = InfiniteRecyclerAdapter.Builder()
       .addHolder(holder = MockHolder::class)
@@ -60,7 +64,9 @@
   ```
 
 ### 같은 방식으로 Draggable 적용 
+
 - `RecyclerViewAdapter` → `DraggableRecyclerAdapter`
+
   ```kotlin
   val adapter = DraggableRecyclerViewAdapter.Builder()
       .addHolder(holder = DraggableMockHolder::class)
@@ -103,7 +109,9 @@
   ```
 
 ### Set items
+
 - notifyDataSetChange { } block을 사용하면 자동으로 DiffUtill 애니메이션이 적용됨
+
   ```kotlin
   fun mockList(mockList: List<MockEntity>) {
 
@@ -116,6 +124,7 @@
   ```
   
 ### Set items - @ItemDiff, @ContentsDiff
+
 - 아이템 객체의 instance가 달라지지 않는 경우에는 이 annotation 지정없이 편하게 DiffUtil 애니메이션이 동작하겠지만
 - instance 비교를 신뢰할 수 없는 경우에는 주요 필드에 적용하여 원하는 콜백을 받을 수 있음
   ```kotlin
@@ -128,6 +137,7 @@
       val postTime: Long
   )
   ```
+  
 - DiffUtil은 annotation 별로 `onBindView` 호출이 분기된다
 - `@ItemDiff` 해당 position의 item이 다른 경우 `onBindView(item, position)`
 - `@ContentsDiff` 해당 position의 item은 같지만 contents 필드가 다른경우 `onBindView(item, position, payloads)`
