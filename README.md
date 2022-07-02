@@ -1,7 +1,8 @@
 # RecyclerViewAdapter
 - Adapter, Holder 작성 DiffUtils 적용에 발생하는 보일러플레이트 제거
 - Draggable, Infinite loop scroll 적용 간소화
-- [RecyclerViewFragment.kt](https://github.com/ikmuwn/Mock-android/blob/master/app/src/main/java/kim/uno/mock/ui/recyclerview/fragment/RecyclerViewFragment.kt)
+- [RecyclerViewFragment.kt](https://github.com/ikmuwn/Mock-android/blob/develop/app/src/main/java/kim/uno/mock/ui/recyclerview/fragment/RecyclerViewFragment.kt)
+- [RecyclerView initialization item animator](https://github.com/ikmuwn/Mock-android/blob/599b2181761df2ac88a91ecfc78162c73d5bf1d2/app/src/main/java/kim/uno/mock/ui/recyclerview/fragment/AbstractRecyclerViewFragment.kt#L27)
 - [Mock-android](https://github.com/ikmuwn/Mock-android)
 
 ### Use
