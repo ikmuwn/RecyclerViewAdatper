@@ -4,7 +4,7 @@
 - [RecyclerViewFragment.kt](https://github.com/ikmuwn/Mock-android/blob/master/app/src/main/java/kim/uno/mock/ui/recyclerview/fragment/RecyclerViewFragment.kt)
 - [Mock-android](https://github.com/ikmuwn/Mock-android)
 
-### use
+### Use
 - RecyclerViewAdapter
   ```kotlin
   val adapter: RecyclerViewAdapter = MockAdapter()
@@ -164,4 +164,34 @@
       }
 
   }
+  ```
+
+### RecyclerView initialization item animator
+
+- DefaultRecyclerViewAnimator 기본 애니메이터 사용
+  ```kotlin
+  recyclerView.addInitializationAnimator(DefaultRecyclerViewAnimator())
+  ```
+
+- 인터페이스 사용하여 animator 전달 (`RecyclerViewAnimator` 또는 `RecyclerViewAnimatorAdapter`)
+  ```kotlin
+  recyclerView.addInitializationAnimator(object : RecyclerViewAnimator {
+  
+      override fun onAnimationCreate(
+          recyclerView: RecyclerView,
+          view: View,
+          index: Int
+      ): Animator {
+          TODO("Return animator")
+      }
+
+      override fun onAnimationStart() {
+
+      }
+
+      override fun onAnimationEnd() {
+
+      }
+    
+  })
   ```
