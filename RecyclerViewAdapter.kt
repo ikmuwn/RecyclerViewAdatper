@@ -42,7 +42,7 @@ abstract class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerViewAdapter.Vi
         }
 
     @Suppress("UNCHECKED_CAST")
-    final override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Any> =
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Any> =
         onCreateHolder(viewType) as ViewHolder<Any>
 
     abstract fun onCreateHolder(viewType: Int): ViewHolder<*>
@@ -186,9 +186,9 @@ abstract class RecyclerViewAdapter : RecyclerView.Adapter<RecyclerViewAdapter.Vi
     open class ViewHolder<ITEM>(val adapter: RecyclerViewAdapter, itemView: View) :
         RecyclerView.ViewHolder(itemView) {
 
-        constructor(adapter: RecyclerViewAdapter, @LayoutRes resId: Int)
-                : this(
-            adapter, LayoutInflater.from(adapter.recyclerView.context)
+        constructor(adapter: RecyclerViewAdapter, @LayoutRes resId: Int) : this(
+            adapter,
+            LayoutInflater.from(adapter.recyclerView.context)
                 .inflate(resId, adapter.recyclerView, false)
         )
 

@@ -1,13 +1,24 @@
 package kim.uno.mock.util.recyclerview
 
+import android.graphics.Canvas
+import android.view.ViewGroup
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 import kotlin.math.abs
 
-abstract class DraggableRecyclerAdapter : RecyclerViewAdapter() {
+abstract class DraggableRecyclerAdapter(
+    private val longPressDragEnabled: Boolean = false
+) : RecyclerViewAdapter() {
 
     private var itemTouchHelper: ItemTouchHelper? = null
+    private var swipeable = false
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<Any> {
+        return super.onCreateViewHolder(parent, viewType).also {
+            swipeable = swipeable || it is Swipeable
+        }
+    }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
         super.onAttachedToRecyclerView(recyclerView)
@@ -16,9 +27,11 @@ abstract class DraggableRecyclerAdapter : RecyclerViewAdapter() {
     }
 
     fun startDrag(holder: ViewHolder<*>) {
-        itemTouchHelper?.startDrag(holder)
-        if (holder is DragHelperCallback.Draggable) {
+        if (holder is Draggable) {
+            itemTouchHelper?.startDrag(holder)
             holder.onDragStateChanged(true)
+        } else {
+            throw Exception("You must implement the Draggable interface.")
         }
     }
 
@@ -28,8 +41,8 @@ abstract class DraggableRecyclerAdapter : RecyclerViewAdapter() {
     }
 
     fun onItemSwap(source: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-        if (source is DragHelperCallback.Draggable && source.isDragEnabled()
-            && target is DragHelperCallback.Draggable && target.isDragEnabled()
+        if (source is Draggable && source.isDragEnabled()
+            && target is Draggable && target.isDragEnabled()
         ) {
             val sourcePosition = source.adapterPosition
             val targetPosition = target.adapterPosition
@@ -54,17 +67,30 @@ abstract class DraggableRecyclerAdapter : RecyclerViewAdapter() {
     }
 
     open fun isLongPressDragEnabled(): Boolean {
-        return false
+        return longPressDragEnabled
     }
 
     open fun isItemViewSwipeEnabled(): Boolean {
-        return true
+        return swipeable
     }
 
-    class Builder : RecyclerViewAdapter.Builder() {
+    interface Draggable {
+        fun onDragStateChanged(isSelected: Boolean) {}
+        fun isDragEnabled() = true
+    }
+
+    interface Swipeable {
+        fun isSwipeEnabled() = true
+        fun onChildDraw(c: Canvas, dX: Float, dY: Float, actionState: Int) = false
+        fun onSwiped() = false
+    }
+
+    class Builder(
+        private val longPressDragEnabled: Boolean = false
+    ) : RecyclerViewAdapter.Builder() {
 
         override val adapter by lazy {
-            object : DraggableRecyclerAdapter() {
+            object : DraggableRecyclerAdapter(longPressDragEnabled = longPressDragEnabled) {
 
                 override fun onCreateHolder(viewType: Int): ViewHolder<*> {
                     return this@Builder.onCreateHolder(viewType)

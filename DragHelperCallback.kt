@@ -5,15 +5,15 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 
-class DragHelperCallback(private val mAdapter: DraggableRecyclerAdapter) :
+class DragHelperCallback(private val adapter: DraggableRecyclerAdapter) :
     ItemTouchHelper.Callback() {
 
     override fun isLongPressDragEnabled(): Boolean {
-        return mAdapter.isLongPressDragEnabled()
+        return adapter.isLongPressDragEnabled()
     }
 
     override fun isItemViewSwipeEnabled(): Boolean {
-        return mAdapter.isItemViewSwipeEnabled()
+        return adapter.isItemViewSwipeEnabled()
     }
 
     override fun getMovementFlags(
@@ -44,17 +44,17 @@ class DragHelperCallback(private val mAdapter: DraggableRecyclerAdapter) :
         source: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        return mAdapter.onItemSwap(source, target)
+        return adapter.onItemSwap(source, target)
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, i: Int) {
-        if (viewHolder is Draggable) {
+        if (viewHolder is DraggableRecyclerAdapter.Swipeable) {
             if (!viewHolder.isSwipeEnabled() || viewHolder.onSwiped()) {
                 return
             }
         }
 
-        mAdapter.onItemDismiss(viewHolder.adapterPosition)
+        adapter.onItemDismiss(viewHolder.adapterPosition)
     }
 
     override fun onChildDraw(
@@ -66,7 +66,7 @@ class DragHelperCallback(private val mAdapter: DraggableRecyclerAdapter) :
         actionState: Int,
         isCurrentlyActive: Boolean
     ) {
-        if (viewHolder is Draggable) {
+        if (viewHolder is DraggableRecyclerAdapter.Swipeable) {
             if (viewHolder.onChildDraw(c, dX, dY, actionState)) {
                 return
             } else if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
@@ -93,7 +93,7 @@ class DragHelperCallback(private val mAdapter: DraggableRecyclerAdapter) :
     }
 
     override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE && viewHolder is Draggable) {
+        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE && viewHolder is DraggableRecyclerAdapter.Draggable) {
             viewHolder.onDragStateChanged(true)
         }
 
@@ -102,7 +102,7 @@ class DragHelperCallback(private val mAdapter: DraggableRecyclerAdapter) :
 
     override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
         super.clearView(recyclerView, viewHolder)
-        if (viewHolder is Draggable) {
+        if (viewHolder is DraggableRecyclerAdapter.Draggable) {
             viewHolder.onDragStateChanged(false)
         }
     }
@@ -112,15 +112,7 @@ class DragHelperCallback(private val mAdapter: DraggableRecyclerAdapter) :
         current: RecyclerView.ViewHolder,
         target: RecyclerView.ViewHolder
     ): Boolean {
-        return if (target is Draggable) target.isDragEnabled() else false
-    }
-
-    interface Draggable {
-        fun onDragStateChanged(isSelected: Boolean) {}
-        fun isSwipeEnabled() = false
-        fun isDragEnabled() = false
-        fun onChildDraw(c: Canvas, dX: Float, dY: Float, actionState: Int) = false
-        fun onSwiped() = false
+        return if (target is DraggableRecyclerAdapter.Draggable) target.isDragEnabled() else false
     }
 
 }
