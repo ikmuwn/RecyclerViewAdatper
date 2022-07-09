@@ -1,6 +1,6 @@
 # RecyclerViewAdapter
 - Adapter, Holder 작성 DiffUtils 적용에 발생하는 보일러플레이트 제거
-- Draggable, Infinite loop scroll 적용 간소화
+- Draggable, Swipeable, Infinite loop scroll 적용 간소화
 - [RecyclerViewFragment.kt](https://github.com/ikmuwn/Mock-android/blob/develop/app/src/main/java/kim/uno/mock/ui/recyclerview/fragment/RecyclerViewFragment.kt)
 - [RecyclerView initialization item animator](https://github.com/ikmuwn/Mock-android/blob/599b2181761df2ac88a91ecfc78162c73d5bf1d2/app/src/main/java/kim/uno/mock/ui/recyclerview/fragment/AbstractRecyclerViewFragment.kt#L27)
 - [Mock-android](https://github.com/ikmuwn/Mock-android)
@@ -69,7 +69,7 @@
 - `RecyclerViewAdapter` → `DraggableRecyclerAdapter`
 
   ```kotlin
-  val adapter = DraggableRecyclerViewAdapter.Builder()
+  val adapter = DraggableRecyclerViewAdapter.Builder(longPressDragEnabled = true)
       .addHolder(holder = DraggableMockHolder::class)
       .build()
 
@@ -80,33 +80,77 @@
   ```kotlin
   class DraggableMockHolder(adapter: RecyclerViewAdapter) :
       RecyclerViewAdapter.ViewHolder<MockEntity>(adapter, R.layout.mock_holder),
-      DragHelperCallback.Draggable {
+      DraggableRecyclerAdapter.Draggable {
 
       private val binding = MockHolderBinding.bind(itemView)
 
       override fun onBindView(item: MockEntity, position: Int) {
           super.onBindView(item, position)
           binding.item = item
-
-          // drag 시작 트리거를 row의 롱 클릭으로 지정
-          binding.root.setOnLongClickListener {
-              if (adapter is DraggableRecyclerAdapter) {
-                  adapter.startDrag(this@DraggableMockHolder)
-              }
-              true
-          }
       }
 
-      // drag 가능여부. 같은 ViewHolder 중에서도 drag enabled를 제어할 수 있음
-      override fun isDragEnabled() = true
-
-      // drag 시작과 끝을 알 수 있음
       override fun onDragStateChanged(isSelected: Boolean) {
           super.onDragStateChanged(isSelected)
           binding.root.alpha = if (isSelected) 0.5f else 1f
       }
 
   }
+  ```
+  
+### 같은 방식으로 Swipeable 적용 
+
+- `RecyclerViewAdapter` → `DraggableRecyclerAdapter`
+
+  ```kotlin
+  val adapter = DraggableRecyclerViewAdapter.Builder()
+      .addHolder(holder = SwipeableMockHolder::class)
+      .build()
+
+  recyclerView.adapter = adapter
+  ```
+
+- DraggableMockHolder.kt `Swipeable` 인터페이스를 상속받음
+  ```kotlin
+  class SwipeableMockHolder(adapter: RecyclerViewAdapter) :
+      RecyclerViewAdapter.ViewHolder<MockEntity>(adapter, R.layout.mock_holder),
+      DraggableRecyclerAdapter.Swipeable {
+
+      private val binding = MockHolderBinding.bind(itemView)
+
+      override fun onBindView(item: MockEntity, position: Int) {
+          super.onBindView(item, position)
+          binding.item = item
+      }
+
+      override fun onChildDraw(c: Canvas, dX: Float, dY: Float, actionState: Int): Boolean {
+          if (dX != 0f) {
+              val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                  color = Color.RED
+              }
+
+              val rectF = RectF(
+                  binding.root.left.toFloat(),
+                  binding.root.top.toFloat(),
+                  binding.root.right.toFloat(),
+                  binding.root.bottom.toFloat(),
+              )
+              paint.alpha = when {
+                  abs(dX) > binding.root.right -> 255
+                  else -> (abs(dX) / binding.root.right * 255).toInt()
+              }
+              c.drawRect(rectF, paint)
+          }
+
+          return super.onChildDraw(c, dX, dY, actionState)
+      }
+
+      override fun onSwiped(): Boolean {
+          context.showToast("Swiped ${binding.item!!.message}")
+          return super.onSwiped()
+      }
+
+  }
+
   ```
 
 ### Set items
